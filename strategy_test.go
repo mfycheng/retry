@@ -41,6 +41,20 @@ func TestRetriableErrors(t *testing.T) {
 	assert.False(t, strategy(1, errors.New("unexpected")))
 }
 
+func TestNonRetriableErrors(t *testing.T) {
+	nonRetriableErrors := []error{
+		errors.New("nonRetriableA"),
+		errors.New("nonRetriableB"),
+		errors.New("nonRetriableC"),
+	}
+
+	strategy := NonRetriableErrors(nonRetriableErrors...)
+	for _, err := range nonRetriableErrors {
+		assert.False(t, strategy(1, err))
+	}
+	assert.True(t, strategy(1, errors.New("unexpected")))
+}
+
 func TestBackoff(t *testing.T) {
 	sleeperImpl = &testSleeper{}
 	strategy := Backoff(backoff.Constant(100*time.Millisecond), 1*time.Second)

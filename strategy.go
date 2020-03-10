@@ -33,6 +33,19 @@ func RetriableErrors(retriableErrors ...error) Strategy {
 	}
 }
 
+// NonRetriableErrors returns a strategy that specifies which errors should not be retried.
+func NonRetriableErrors(nonRetriableErrors ...error) Strategy {
+	return func(attempts uint, err error) bool {
+		for _, e := range nonRetriableErrors {
+			if e == err {
+				return false
+			}
+		}
+
+		return true
+	}
+}
+
 // Backoff returns a strategy that will delay the next retry, provided the
 // action resulted in an error. The returned strategy will cause the caller
 // (the retrier) to sleep.
