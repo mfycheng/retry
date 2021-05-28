@@ -2,6 +2,7 @@ package retry
 
 import (
 	"errors"
+	"fmt"
 	"math"
 	"testing"
 	"time"
@@ -37,6 +38,8 @@ func TestRetriableErrors(t *testing.T) {
 	strategy := RetriableErrors(retriableErrors...)
 	for _, err := range retriableErrors {
 		assert.True(t, strategy(1, err))
+		// Ensure wrapped errors are detected.
+		assert.True(t, strategy(1, fmt.Errorf("wrapped: %w", err)))
 	}
 	assert.False(t, strategy(1, errors.New("unexpected")))
 }
@@ -51,6 +54,8 @@ func TestNonRetriableErrors(t *testing.T) {
 	strategy := NonRetriableErrors(nonRetriableErrors...)
 	for _, err := range nonRetriableErrors {
 		assert.False(t, strategy(1, err))
+		// Ensure wrapped errors are detected.
+		assert.False(t, strategy(1, fmt.Errorf("wrapped: %w", err)))
 	}
 	assert.True(t, strategy(1, errors.New("unexpected")))
 }
